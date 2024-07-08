@@ -1,0 +1,7 @@
+/*.signup-form {
+    background-color: blueviolet;
+}*/
+
+mat-form-field {
+    width: 300px;
+}
