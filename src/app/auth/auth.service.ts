@@ -15,134 +15,137 @@ import * as actionsAuth from './auth.actions';
 
 @Injectable()
 export class AuthService {
-    authChange = new Subject<boolean>();
-    private isAuthenticated: boolean = false;
+   authChange = new Subject<boolean>();
+   private isAuthenticated: boolean = false;
 
-    private empty = {
-        id: 0,
-        email: 'noreply@zerojumpone.mx'
-    }
+   private empty = {
+      id: 0,
+      email: 'noreply@zerojumpone.mx'
+   }
 
-    private user: User = this.empty;
+   private user: User = this.empty;
 
-    constructor(
-        private router: Router,
-        private fbAuth: AngularFireAuth,
-        private trainingServices: TrainingService,
-        private snackbar: MatSnackBar,
-        private uiServices: UIService,
-        private store: Store<AppState> ) {
+   constructor(
+      private router: Router,
+      private fbAuth: AngularFireAuth,
+      private trainingServices: TrainingService,
+      private snackbar: MatSnackBar,
+      private uiServices: UIService,
+      private store: Store<AppState>) {
 
-    }
+   }
 
-    initAuthListener(): void {
-        this.fbAuth.authState.subscribe( (user) => {
-            //console.log('usuario', user);
-            if (user) {
-                this.store.dispatch( actionsAuth.setAuth());
-                // this.isAuthenticated = true;
-                // this.authChange.next(true);
-                this.router.navigate(['/training']);
-            } else {
-                this.trainingServices.cancelSubscriptions();
-                this.store.dispatch( actionsAuth.setUnAuth());
-                this.user = this.empty;
-                //this.authChange.next(false);
-                this.router.navigate(['/login']);
-                //this.isAuthenticated = false;
-            }
-        });
-    }
+   initAuthListener(): void {
+      console.log('initAuthListener');
 
-    registerUser(authData: AuthData) : void {
-        //this.uiServices.loadingStateChange.next(true);
-        this.store.dispatch( actions.startLoading() );
+      this.fbAuth.authState.subscribe((user) => {
+         /* Salir de programa y no se ejecuta las siguientes lineas de código */
+         if (!user) {
+            this.user = this.empty;
+            this.trainingServices.cancelSubscriptions();
+            this.store.dispatch(actionsAuth.setUnAuth());
+            this.router.navigate(['/login']);
+            //this.authChange.next(false);
+            //this.isAuthenticated = false;
+            return;
+         };
 
-        this.fbAuth.createUserWithEmailAndPassword(authData.email, authData.password)
-            .then( (result) => {
-                //this.uiServices.loadingStateChange.next(false);
-                //this.store.dispatch({ type: 'STOP_LOADING' });
-                this.store.dispatch( actions.stopLoading() );
+         // this.isAuthenticated = true;
+         // this.authChange.next(true);
+         this.store.dispatch(actionsAuth.setAuth());
+         this.router.navigate(['/training']);
+      });
+   }
 
-                //console.log(result);
-                //this.authSuccessfully();
-            })
-            .catch( (error) => {
-                //this.store.dispatch({ type: 'STOP_LOADING' });
-                this.store.dispatch( actions.stopLoading() );
-                //this.uiServices.loadingStateChange.next(false);
-                this.uiServices.showSnackbar(error.message, '', 3000);
-                //console.log(error.message);
-            })
+   registerUser(authData: AuthData): void {
+      //this.uiServices.loadingStateChange.next(true);
+      this.store.dispatch(actions.startLoading());
 
-        /*this.user = {
-            id: Math.round(Math.random() * 10000),
-            email: authData.email
-        };*/
+      this.fbAuth.createUserWithEmailAndPassword(authData.email, authData.password)
+         .then((result) => {
+            //this.uiServices.loadingStateChange.next(false);
+            //this.store.dispatch({ type: 'STOP_LOADING' });
+            this.store.dispatch(actions.stopLoading());
 
-    }
+            //console.log(result);
+            //this.authSuccessfully();
+         })
+         .catch((error) => {
+            //this.store.dispatch({ type: 'STOP_LOADING' });
+            this.store.dispatch(actions.stopLoading());
+            //this.uiServices.loadingStateChange.next(false);
+            this.uiServices.showSnackbar(error.message, '', 3000);
+            //console.log(error.message);
+         })
 
-    login(authData: AuthData) : void {
-        //this.uiServices.loadingStateChange.next(true);
-        //this.store.dispatch({ type: 'START_LOADING' });
-        const {email, password} = authData;
+      /*this.user = {
+          id: Math.round(Math.random() * 10000),
+          email: authData.email
+      };*/
+
+   }
+
+   login(authData: AuthData): void {
+      //this.uiServices.loadingStateChange.next(true);
+      //this.store.dispatch({ type: 'START_LOADING' });
+      const { email, password } = authData;
 
 
-        this.store.dispatch( actions.startLoading() );
+      this.store.dispatch(actions.startLoading());
 
       //   console.log('auth data:', authData);
 
-        this.fbAuth.signInWithEmailAndPassword(email, password)
-        .then( (result) => {
+      this.fbAuth.signInWithEmailAndPassword(email, password)
+         .then((result) => {
             //this.uiServices.loadingStateChange.next(false);
             //this.store.dispatch({ type: 'STOP_LOADING' });
-            this.store.dispatch( actions.stopLoading() );
+            this.store.dispatch(actions.stopLoading());
             //console.log(result);
             this.authSuccessfully();
-        })
-        .catch( (error) => {
+         })
+         .catch((error) => {
             //this.uiServices.loadingStateChange.next(false);
             //this.store.dispatch({ type: 'STOP_LOADING' });
-            this.store.dispatch( actions.stopLoading() );
+            this.store.dispatch(actions.stopLoading());
             this.uiServices.showSnackbar(error.message, '', 3000);
             //console.log(error);
-        });
+         });
 
-        /*this.user = {
-            id: Math.round(Math.random() * 10000),
-            email: authData.email
-        };
+      /*this.user = {
+          id: Math.round(Math.random() * 10000),
+          email: authData.email
+      };
 
-        this.authChange.next(true);
-        this.router.navigate(['/training']);*/
-    }
+      this.authChange.next(true);
+      this.router.navigate(['/training']);*/
+   }
 
-    logout() : void {
-        this.fbAuth.signOut();
-        /*this.trainingServices.cancelSubscriptions();
+   logout(): void {
+      this.fbAuth.signOut();
+      /*this.trainingServices.cancelSubscriptions();
 
-        this.user = this.empty;
+      this.user = this.empty;
 
-        this.authChange.next(false);
-        this.router.navigate(['/login']);
+      this.authChange.next(false);
+      this.router.navigate(['/login']);
 
-        this.isAuthenticated = false;*/
-    }
+      this.isAuthenticated = false;*/
+   }
 
-    /*getUser(): User {
-        return { ...this.user };
-    }*/
+   /*getUser(): User {
+       return { ...this.user };
+   }*/
 
-    isAuth() {
-        //return this.user.id !== 0;
-        return this.isAuthenticated;
-    }
+   isAuth() {
+      //return this.user.id !== 0;
+      return this.isAuthenticated;
+   }
 
-    authSuccessfully(): void {
-        this.isAuthenticated = true;
+   authSuccessfully(): void {
+      this.isAuthenticated = true;
 
-        this.authChange.next(true);
-        this.router.navigate(['/training']);
-    }
+      this.authChange.next(true);
+      this.router.navigate(['/training']);
+   }
 
 }

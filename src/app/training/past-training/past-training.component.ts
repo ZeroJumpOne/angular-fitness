@@ -6,47 +6,53 @@ import { MatTableDataSource } from '@angular/material/table';
 import { filter, Subscription } from 'rxjs';
 import { Exercise } from '../exercise.module';
 import { TrainingService } from '../training.service';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
+
 
 @Component({
-  selector: 'app-past-training',
-  templateUrl: './past-training.component.html',
-  styleUrls: ['./past-training.component.css']
+   selector: 'app-past-training',
+   templateUrl: './past-training.component.html',
+   styleUrls: ['./past-training.component.css']
 })
 export class PastTrainingComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  displayedColumns = ['date', 'name', 'duration', 'calories', 'state'];
-  dsExercises = new MatTableDataSource<Exercise>();
-  private exChangedSubscription!: Subscription;
+   displayedColumns = ['date', 'name', 'duration', 'calories', 'state'];
+   dsExercises = new MatTableDataSource<Exercise>();
 
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+   private finishedExercisesSubscription?: Subscription;
 
-  constructor(private trainingServices: TrainingService) { 
+   @ViewChild(MatSort) sort!: MatSort;
+   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  }
+   constructor(
+      private trainingServices: TrainingService,
+      private store: Store<AppState>,
+   ) { }
 
-  ngOnInit(): void {
-    this.exChangedSubscription = this.trainingServices.finishedExercisesChanged.subscribe( (exercises: Exercise[]) => {
-        this.dsExercises.data = exercises;
-        //console.log('recibo en past-training',exercises);
-    });
-    this.trainingServices.fetchCompletedOrCancelledExercises();    
-    //this.dsExercises.data = this.trainingServices.getCompletedOrCancelledExercises();    
-  }
+   ngOnInit(): void {
+      this.store.select('training').subscribe(({ finishedExcercises }) => {
+         this.dsExercises.data = finishedExcercises;
+      });
 
-  ngOnDestroy(): void {
-    if (this.exChangedSubscription) {
-      this.exChangedSubscription.unsubscribe();
-    }
-  }
 
-  ngAfterViewInit(): void {
-    this.dsExercises.sort = this.sort;
-    this.dsExercises.paginator = this.paginator;
-  }
+      // this.exChangedSubscription = this.trainingServices.finishedExercisesChanged.subscribe((exercises: Exercise[]) => {
+      //    this.dsExercises.data = exercises;
+      // });
+      this.trainingServices.fetchCompletedOrCancelledExercises();
+   }
 
-  doFilter(filterValue: string = ''): void {
-    this.dsExercises.filter = filterValue.trim().toLowerCase();
-  }
+   ngOnDestroy(): void {
+      this.finishedExercisesSubscription?.unsubscribe();
+   }
+
+   ngAfterViewInit(): void {
+      this.dsExercises.sort = this.sort;
+      this.dsExercises.paginator = this.paginator;
+   }
+
+   doFilter(filterValue: string = ''): void {
+      this.dsExercises.filter = filterValue.trim().toLowerCase();
+   }
 
 }

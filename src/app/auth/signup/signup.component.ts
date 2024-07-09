@@ -43,12 +43,14 @@ export class SignupComponent implements OnInit, OnDestroy {
    }
 
    onSubmit(form: NgForm): void {
+      const { email, password } = form.value;
+      //console.log(form);
+
       this.authService.registerUser({
-         email: form.value.email,
-         password: form.value.password
+         email: email,
+         password: password
       });
 
-      //console.log(form);
    }
 
 }

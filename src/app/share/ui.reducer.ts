@@ -4,21 +4,15 @@ import * as actions from './ui.actions';
 
 
 export interface State {
-    isLoading: boolean;
+   isLoading: boolean;
 }
 
 const initialState: State = {
-    isLoading: false
+   isLoading: false
 }
 
 export const uiReducer = createReducer(
-    initialState,
-    on(actions.startLoading, (state) => ({
-        ...state,
-        isLoading: true
-    })),
-    on(actions.stopLoading,  (state) => ({
-        ...state,
-        isLoading: false
-    })),
-  );
+   initialState,
+   on(actions.startLoading, (state) => ({ ...state, isLoading: true })),
+   on(actions.stopLoading, (state) => ({ ...state, isLoading: false })),
+);

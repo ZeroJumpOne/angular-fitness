@@ -3,39 +3,57 @@ import { NgForm } from '@angular/forms';
 import { Exercise } from '../exercise.module';
 import { TrainingService } from '../training.service';
 import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
 
 @Component({
-  selector: 'app-new-training',
-  templateUrl: './new-training.component.html',
-  styleUrls: ['./new-training.component.css']
+   selector: 'app-new-training',
+   templateUrl: './new-training.component.html',
+   styleUrls: ['./new-training.component.css']
 })
 export class NewTrainingComponent implements OnInit, OnDestroy {
-    @Output() startTraining = new EventEmitter<void>();
-  
-    //exercises!: Observable<Exercise[]>;
-    exercises!: Exercise[];
-    exercisesSubscription!: Subscription;
-  
-    constructor(private trainingService: TrainingService) {
-        
-    }
+   @Output() startTraining = new EventEmitter<void>();
 
-    ngOnInit(): void {
-        this.exercisesSubscription = this.trainingService.exercisesChanged.subscribe( (exercises) => this.exercises = exercises );
-        this.trainingService.fetchAvailableExercises();
-      
-        //console.log(this.exercises);
-    }
+   //exercises!: Observable<Exercise[]>;
+   exercises!: Exercise[];
+   isLoading: boolean = false;
 
-    ngOnDestroy(): void {
-        if (this.exercisesSubscription){
-            this.exercisesSubscription.unsubscribe();
-        }        
-    }
-  
-    onStartTraining(form: NgForm) : void {
-        //this.startTraining.emit();
-        this.trainingService.startExercise(form.value.exercise);
-        //console.log(form);
-    }
+   exercisesSubscription!: Subscription;
+   isLoadingSubscription?: Subscription;
+   availableExercisesSubscription?: Subscription;
+
+   constructor(
+      private trainingService: TrainingService,
+      private store: Store<AppState>,
+   ) { }
+
+   ngOnInit(): void {
+
+      this.isLoadingSubscription = this.store.select('ui').subscribe(({ isLoading }) => {
+         this.isLoading = isLoading;
+      });
+
+      this.availableExercisesSubscription = this.store.select('training').subscribe(({ availableExercises }) => {
+         this.exercises = availableExercises;
+      });
+      //   this.exercisesSubscription = this.trainingService.exercisesChanged.subscribe( (exercises) => this.exercises = exercises );
+      this.trainingService.fetchAvailableExercises();
+
+      //console.log(this.exercises);
+   }
+
+   ngOnDestroy(): void {
+      this.isLoadingSubscription?.unsubscribe();
+      this.availableExercisesSubscription?.unsubscribe();
+
+      // if (this.exercisesSubscription) {
+      //    this.exercisesSubscription.unsubscribe();
+      // }
+   }
+
+   onStartTraining(form: NgForm): void {
+      //this.startTraining.emit();
+      // console.log('Exercise', form.value.exercise);
+      this.trainingService.startExercise(form.value.exercise);
+   }
 }
