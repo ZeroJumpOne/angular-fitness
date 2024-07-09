@@ -59,6 +59,9 @@ export class TrainingService {
             )
             .subscribe((exercises: Exercise[]) => {
 
+               console.log({ exercises });
+
+
                this.store.dispatch(actions.stopLoading());
 
                this.store.dispatch(actionsTraining.setAvailable({ availables: exercises }));
@@ -87,16 +90,17 @@ export class TrainingService {
    }
 
    completeExercise(): void {
-      this.store.select('training').subscribe(({ activeTraining }) => {
-         console.log({ exercise: activeTraining });
+      // this.store.select('training').subscribe(({ activeTraining }) => {
+      //    // console.log({ exercise: activeTraining });
 
-         this.add({
-            ...activeTraining,
-            date: new Date(),
-            state: 'completed'
-         });
-         this.store.dispatch(actionsTraining.stopTraining());
-      });
+      //    this.add({
+      //       ...activeTraining,
+      //       date: new Date(),
+      //       state: 'completed'
+      //    });
+
+      //    this.store.dispatch(actionsTraining.stopTraining());
+      // });
 
 
       // this.runningExercise = this.EMPTY;
@@ -104,16 +108,17 @@ export class TrainingService {
    }
 
    cancelExercise(progress: number): void {
-      this.store.select('training').subscribe(({ activeTraining }) => {
-         this.add({
-            ...activeTraining,
-            duration: activeTraining.duration * (progress / 100),
-            calories: activeTraining.calories * (progress / 100),
-            date: new Date(),
-            state: 'cancelled',
-         });
-         this.store.dispatch(actionsTraining.stopTraining());
-      });
+      // this.store.select('training').subscribe(({ activeTraining }) => {
+      //    this.add({
+      //       ...activeTraining,
+      //       duration: activeTraining.duration * (progress / 100),
+      //       calories: activeTraining.calories * (progress / 100),
+      //       date: new Date(),
+      //       state: 'cancelled',
+      //    });
+
+      //    this.store.dispatch(actionsTraining.stopTraining());
+      // });
 
       // this.runningExercise = this.EMPTY;
       // this.exerciseChanged.next(this.EMPTY);
@@ -123,7 +128,7 @@ export class TrainingService {
    //    return { ...this.runningExercise };
    // }
 
-   fetchCompletedOrCancelledExercises() {
+   public fetchCompletedOrCancelledExercises() {
       //return this.exercises;
       this.fbSubscriptions.push(
 
@@ -131,15 +136,14 @@ export class TrainingService {
             .valueChanges()
             .subscribe((exercises: Exercise[]) => {
                // this.finishedExercisesChanged.next(exercises);
-               this.store.dispatch(actionsTraining.setAvailable({ availables: exercises }))
+               this.store.dispatch(actionsTraining.setFinished({ finisheds: exercises }))
             })
 
       );
    }
 
-   private add(exercise: Exercise): void {
-      this.fdb.collection('finishedExercises').add(exercise);
-
+   private async add(exercise: Exercise) {
+      await this.fdb.collection('finishedExercises').add(exercise);
    }
 
    cancelSubscriptions(): void {

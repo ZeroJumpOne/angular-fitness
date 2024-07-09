@@ -28,20 +28,20 @@ export class CurrentTrainingComponent implements OnInit {
    }
 
    public startOrResumeTimer(): void {
-      this.store.select('training').subscribe( ({ activeTraining }) => {
+      // this.store.select('training').subscribe( ({ activeTraining }) => {
 
-         const step = ( activeTraining.duration / 100) * 1000;
-         //console.log(step);
+      //    const step = ( activeTraining.duration / 100) * 1000;
+      //    //console.log(step);
 
-         this.timer = setInterval(() => {
-            this.progress = this.progress + 1;
+      //    this.timer = setInterval(() => {
+      //       this.progress = this.progress + 1;
 
-            if (this.progress >= 100) {
-               this.trainingService.completeExercise();
-               clearInterval(this.timer);
-            }
-         }, step);
-      });
+      //       if (this.progress >= 100) {
+      //          this.trainingService.completeExercise();
+      //          clearInterval(this.timer);
+      //       }
+      //    }, step);
+      // });
    }
 
    onStop(): void {

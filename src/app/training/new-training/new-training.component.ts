@@ -18,7 +18,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
    exercises!: Exercise[];
    isLoading: boolean = false;
 
-   exercisesSubscription!: Subscription;
+   // exercisesSubscription!: Subscription;
    isLoadingSubscription?: Subscription;
    availableExercisesSubscription?: Subscription;
 
@@ -34,9 +34,16 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
       });
 
       this.availableExercisesSubscription = this.store.select('training').subscribe(({ availableExercises }) => {
+         console.log('subscription to availableExercises');
+         // console.log({availableExercises});
          this.exercises = availableExercises;
+         // console.log(this.exercises);
       });
+
+
       //   this.exercisesSubscription = this.trainingService.exercisesChanged.subscribe( (exercises) => this.exercises = exercises );
+
+      // Load selecting exercises
       this.trainingService.fetchAvailableExercises();
 
       //console.log(this.exercises);

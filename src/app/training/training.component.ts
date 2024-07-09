@@ -12,19 +12,21 @@ import { AppState } from '../app.reducer';
 
 export class TrainingComponent implements OnInit, OnDestroy {
 
-   ongoingTraining: Boolean = false;
+   onGoingTraining: boolean = false;
    //exerciseSubscription: Subscription = Subscription.EMPTY;
    //   exerciseSubscription!: Subscription;
    trainingSubscription?: Subscription;
 
    constructor(
       private trainingService: TrainingService,
-      private store: Store<AppState>) {}
+      private store: Store<AppState>) { }
 
    ngOnInit(): void {
-      this.trainingSubscription = this.store.select('training').subscribe( ({training}) => {
+      this.trainingSubscription = this.store.select('training').subscribe(({ training }) => {
          // console.log({training});
-         this.ongoingTraining = training;
+         const { now } = training;
+
+         this.onGoingTraining = now;
       })
 
 
@@ -47,11 +49,11 @@ export class TrainingComponent implements OnInit, OnDestroy {
    }
 
    onStart(): void {
-      this.ongoingTraining = true;
+      // this.onGoingTraining = true;
    }
 
    onStopTraining(): void {
-      this.ongoingTraining = false;
+      // this.onGoingTraining = false;
    }
 
 }
