@@ -16,6 +16,8 @@ export class CurrentTrainingComponent implements OnInit {
 
    progress: number = 0;
    timer: any = 0;
+   goingTraining: Exercise = {} as Exercise;
+   isTraining: boolean = false;
 
    constructor(
       private dialog: MatDialog, private trainingService: TrainingService,
@@ -24,24 +26,29 @@ export class CurrentTrainingComponent implements OnInit {
 
    ngOnInit(): void {
       console.log('currentTraining');
+      this.store.select('training').subscribe(({ training }) => {
+         const { exercise, now } = training;
+         this.goingTraining = exercise;
+         this.isTraining = now;
+      });
+
       this.startOrResumeTimer();
    }
 
    public startOrResumeTimer(): void {
-      // this.store.select('training').subscribe( ({ activeTraining }) => {
+      if(!this.isTraining) return; /* Si no esta en entrenamiento, no continua */
 
-      //    const step = ( activeTraining.duration / 100) * 1000;
-      //    //console.log(step);
+      //console.log(step);
+      const step = (this.goingTraining.duration / 100) * 1000;
 
-      //    this.timer = setInterval(() => {
-      //       this.progress = this.progress + 1;
+      this.timer = setInterval(() => {
+         this.progress = this.progress + 1;
 
-      //       if (this.progress >= 100) {
-      //          this.trainingService.completeExercise();
-      //          clearInterval(this.timer);
-      //       }
-      //    }, step);
-      // });
+         if (this.progress >= 100) {
+            this.trainingService.completeExercise(this.goingTraining);
+            clearInterval(this.timer);
+         }
+      }, step);
    }
 
    onStop(): void {
@@ -53,7 +60,7 @@ export class CurrentTrainingComponent implements OnInit {
 
          if (result) {
             //this.trainingExit.emit();
-            this.trainingService.cancelExercise(this.progress);
+            this.trainingService.cancelExercise(this.progress, this.goingTraining);
          } else {
             this.startOrResumeTimer();
          }

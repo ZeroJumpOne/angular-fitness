@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subject, map, Subscription } from 'rxjs';
 
-import { Exercise } from "./exercise.module";
+import { Exercise } from './exercise.module';
 import { Store } from '@ngrx/store';
 import { AppState } from '../app.reducer';
 
@@ -59,7 +59,7 @@ export class TrainingService {
             )
             .subscribe((exercises: Exercise[]) => {
 
-               console.log({ exercises });
+               console.log({ FBAvailables: exercises });
 
 
                this.store.dispatch(actions.stopLoading());
@@ -80,7 +80,7 @@ export class TrainingService {
    }
 
    startExercise(exercise: Exercise): void {
-      //console.log(id);
+      console.log({start: exercise});
       this.store.dispatch(actionsTraining.startTraining({ exercise: exercise }));
 
 
@@ -89,17 +89,19 @@ export class TrainingService {
       // this.exerciseChanged.next({ ...this.runningExercise });
    }
 
-   completeExercise(): void {
+   completeExercise(training: Exercise): void {
       // this.store.select('training').subscribe(({ activeTraining }) => {
-      //    // console.log({ exercise: activeTraining });
+         // console.log({ exercise: activeTraining });
 
-      //    this.add({
-      //       ...activeTraining,
-      //       date: new Date(),
-      //       state: 'completed'
-      //    });
+         this.add({
+            ...training,
+            date: new Date(),
+            state: 'completed'
+         });
 
-      //    this.store.dispatch(actionsTraining.stopTraining());
+         this.store.dispatch(actionsTraining.stopTraining());
+
+         // this.fetchCompletedOrCancelledExercises();
       // });
 
 
@@ -107,17 +109,17 @@ export class TrainingService {
       // this.exerciseChanged.next(this.EMPTY);
    }
 
-   cancelExercise(progress: number): void {
+   cancelExercise(progress: number, training: Exercise): void {
       // this.store.select('training').subscribe(({ activeTraining }) => {
-      //    this.add({
-      //       ...activeTraining,
-      //       duration: activeTraining.duration * (progress / 100),
-      //       calories: activeTraining.calories * (progress / 100),
-      //       date: new Date(),
-      //       state: 'cancelled',
-      //    });
+         this.add({
+            ...training,
+            duration: training.duration * (progress / 100),
+            calories: training.calories * (progress / 100),
+            date: new Date(),
+            state: 'cancelled',
+         });
 
-      //    this.store.dispatch(actionsTraining.stopTraining());
+         this.store.dispatch(actionsTraining.stopTraining());
       // });
 
       // this.runningExercise = this.EMPTY;

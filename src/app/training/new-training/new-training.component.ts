@@ -15,7 +15,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
    @Output() startTraining = new EventEmitter<void>();
 
    //exercises!: Observable<Exercise[]>;
-   exercises!: Exercise[];
+   public exercises!: Exercise[];
    isLoading: boolean = false;
 
    // exercisesSubscription!: Subscription;
@@ -34,8 +34,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
       });
 
       this.availableExercisesSubscription = this.store.select('training').subscribe(({ availableExercises }) => {
-         console.log('subscription to availableExercises');
-         // console.log({availableExercises});
+         console.log({availables: availableExercises});
          this.exercises = availableExercises;
          // console.log(this.exercises);
       });
@@ -44,7 +43,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
       //   this.exercisesSubscription = this.trainingService.exercisesChanged.subscribe( (exercises) => this.exercises = exercises );
 
       // Load selecting exercises
-      this.trainingService.fetchAvailableExercises();
+      // this.trainingService.fetchAvailableExercises();
 
       //console.log(this.exercises);
    }
@@ -59,8 +58,9 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
    }
 
    onStartTraining(form: NgForm): void {
+      const {exercise} = form.value;
       //this.startTraining.emit();
-      // console.log('Exercise', form.value.exercise);
-      this.trainingService.startExercise(form.value.exercise);
+      console.log(exercise);
+      this.trainingService.startExercise(exercise);
    }
 }

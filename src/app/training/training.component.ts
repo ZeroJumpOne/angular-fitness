@@ -29,6 +29,9 @@ export class TrainingComponent implements OnInit, OnDestroy {
          this.onGoingTraining = now;
       })
 
+      // load available exercises.
+      this.trainingService.fetchAvailableExercises();
+
 
       //  this.exerciseSubscription = this.trainingService.exerciseChanged.subscribe( (exercise) => {
 
